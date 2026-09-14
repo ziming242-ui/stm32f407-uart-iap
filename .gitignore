@@ -1,0 +1,17 @@
+build/
+build-*/
+**/Objects/
+**/Listings/
+*.axf
+*.bin
+*.hex
+*.map
+*.lst
+*.o
+*.d
+*.exe
+*.dll
+*.uvoptx
+*.uvguix*
+*.user
+*.log
