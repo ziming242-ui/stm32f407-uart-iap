@@ -25,9 +25,11 @@ UART HOLD → START → DATA(序号/偏移/CRC16) → END(CRC32)
 - `tests/pc_sim`：乱序、CRC、ACK 丢失、下载/搬运中断和未确认回滚测试
 - `docs`：Flash 布局、接线与证据记录
 
-## 验证边界
+## Current status
 
-PC/编译检查覆盖 Keil 目标、Qt 工具和 6 组主要故障模拟。开发板记录覆盖一次约 14.6 KB 镜像升级，传输耗时约 3.86 s；真实 Flash、复位和 FreeRTOS 启动细节见 `docs/evidence_and_test.md`。这里不宣称安全启动、数字签名、加密或量产级掉电安全。
+PC/编译检查覆盖 Keil 目标、Qt 工具和 6 组主要故障模拟。已有一次约 14.6 KB 镜像升级记录，传输耗时约 3.86 s。真实 Flash、复位和 FreeRTOS 启动细节见 `docs/evidence_and_test.md`。
+
+当前项目边界：已实现 Bootloader、UART 协议、CRC、Flash 分区、A/B 状态机、镜像搬运和 APP 启动确认；安全启动、数字签名、加密、量产级掉电安全和长期可靠性测试不在本仓库的结论范围内。
 
 ## 构建
 
