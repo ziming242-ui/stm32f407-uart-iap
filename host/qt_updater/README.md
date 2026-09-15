@@ -58,12 +58,12 @@ cd E:\IAP\stm32f407_uart_iap_demo\host\qt_updater
 
 如果开发板已经在运行 APP，请先按复位键，再在 Bootloader 的 3 秒等待窗口内点击“开始升级”。升级完成后，APP 的文本心跳会继续显示在上位机日志区。
 
-## 证据边界与限制
+## Validation scope and limits
 
 - `[源码证据]`：本目录包含协议编码、CRC、ACK 状态机、超时重发和程序化 UI。
-- `[PC模拟]`：2026-09-05 已使用 `D:\Qt\6.8.3\mingw_64`、Qt SerialPort、MinGW 13.1、CMake 和 Ninja 完成 Release 构建；`windeployqt` 部署后，隐藏运行 `--smoke-test` 返回 0。该检查覆盖 QApplication/界面对象创建、事件循环、CRC 固定向量和公共错误码映射。
+- 主机端：2026-09-05 已使用 Qt SerialPort、MinGW 13.1、CMake 和 Ninja 完成 Release 构建；`--smoke-test` 返回 0。该检查覆盖 QApplication/界面对象创建、事件循环、CRC 固定向量和公共错误码映射。
 - `windeployqt` 报告未找到可选的 `dxcompiler.dll`/`dxil.dll`，但本 Widgets 程序的启动烟雾测试通过；若以后加入依赖 DirectX Shader Compiler 的界面功能，需要重新部署核对。
-- 未连接 STM32F407ZGT6 开发板，不能标记为 `[开发板实测]` 或宣称升级成功。
+- 未连接 STM32F407ZGT6 开发板；不能据此宣称真实硬件升级成功。
 - `QSerialPort::write()` 成功只表示数据进入本机发送缓冲；进度只在设备 ACK 的序号和偏移与预期一致后推进。
 - 固定协议没有 magic/SOF 字段；接收端只能根据已知命令、长度和 CRC 尝试重新同步，抗噪能力受限。
 - ACK/NACK 没有携带“被确认的命令”或事务 ID；极端情况下，同一控制帧超时重发产生的迟到重复 ACK 无法与下一控制帧 ACK 完全区分。正式协议应增加关联字段或在设备端保证每个停等事务只形成一个有效响应。

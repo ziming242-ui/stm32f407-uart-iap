@@ -281,7 +281,7 @@ IapError iap_boot_try_start_application(void)
     }
 
     /* Development escape hatch: allow a manually flashed Run image only before
-       the first metadata record exists. This path has no image CRC evidence. */
+       the first metadata record exists. This path has no image CRC check. */
     if (meta.record_generation == 0u &&
         iap_app_vectors_read_and_validate(IAP_RUN_BASE,
                                            IAP_RUN_SIZE,

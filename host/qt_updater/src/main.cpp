@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
     QApplication::setApplicationName(QStringLiteral("STM32F407 IAP Updater"));
-    QApplication::setOrganizationName(QStringLiteral("IAP Learning Demo"));
+    QApplication::setOrganizationName(QStringLiteral("UART IAP Demo"));
 
     MainWindow window;
     if (application.arguments().contains(QStringLiteral("--smoke-test"))) {

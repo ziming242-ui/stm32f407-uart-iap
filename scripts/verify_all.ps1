@@ -53,8 +53,8 @@ $qtVersion = & 'D:\Qt\6.8.3\mingw_64\bin\qmake.exe' -query QT_VERSION
 $lines = @(
     'STM32F407 UART IAP verification summary',
     ('Generated: {0}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')),
-    'Evidence level: PC simulation / compile and launch checks only',
-    'Hardware evidence: NOT TESTED',
+    'Validation scope: PC simulation / compile and launch checks only',
+    'Hardware checks: NOT TESTED',
     '',
     ('Keil Bootloader: {0} bytes, SHA256={1}' -f $bootInfo.Length,
         (Get-FileHash -LiteralPath $bootBin -Algorithm SHA256).Hash),
