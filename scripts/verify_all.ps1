@@ -49,12 +49,19 @@ if (($resetHandler -band 1) -eq 0 -or $resetCode -lt 0x08040000 -or
     throw ('Invalid APP Reset_Handler: 0x{0:X8}' -f $resetHandler)
 }
 
-$qtVersion = & 'D:\Qt\6.8.3\mingw_64\bin\qmake.exe' -query QT_VERSION
+$qmake = Get-Command 'qmake.exe' -ErrorAction SilentlyContinue
+if (-not $qmake -and $env:QT_ROOT) {
+    $candidate = Join-Path $env:QT_ROOT 'bin\qmake.exe'
+    if (Test-Path -LiteralPath $candidate -PathType Leaf) {
+        $qmake = [PSCustomObject]@{ Source = $candidate }
+    }
+}
+$qtVersion = if ($qmake) { & $qmake.Source -query QT_VERSION } else { 'not reported (qmake not found)' }
 $lines = @(
     'STM32F407 UART IAP verification summary',
     ('Generated: {0}' -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss zzz')),
-    'Validation scope: PC simulation / compile and launch checks only',
-    'Hardware checks: NOT TESTED',
+    'Evidence level: mixed PC simulation / compile checks plus recorded board test',
+    'Board checks: normal upgrade, health confirmation, reset recovery, jump-register inspection, session/power recovery, and unconfirmed-image rollback recorded',
     '',
     ('Keil Bootloader: {0} bytes, SHA256={1}' -f $bootInfo.Length,
         (Get-FileHash -LiteralPath $bootBin -Algorithm SHA256).Hash),
@@ -67,7 +74,7 @@ $lines = @(
     ('Qt updater: SHA256={0}' -f
         (Get-FileHash -LiteralPath $qtExe -Algorithm SHA256).Hash),
     '',
-    'This report does not prove UART, Flash, reset, VTOR/MSP jump, FreeRTOS, or power-loss behavior on STM32 hardware.'
+    'Board evidence details: docs/evidence_and_test.md and docs/evidence/; DATA/Run/metadata write-stage power loss and UART RX/TX physical disconnect remain untested.'
 )
 
 New-Item -ItemType Directory -Path $logRoot -Force | Out-Null

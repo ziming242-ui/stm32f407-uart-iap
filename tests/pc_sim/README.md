@@ -3,7 +3,7 @@
 运行：
 
 ```powershell
-cd E:\IAP\stm32f407_uart_iap_demo\tests\pc_sim
+cd tests\pc_sim
 .\run_tests.ps1
 ```
 

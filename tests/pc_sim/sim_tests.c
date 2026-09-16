@@ -360,7 +360,7 @@ static int test_copy_power_loss_and_rollback(void)
 int main(void)
 {
     puts("STM32F407 UART IAP host simulation");
-    puts("Host-side checks only; not STM32 hardware measurement\n");
+    puts("Evidence: [PC simulation], not STM32 hardware measurement\n");
     (void)test_crc_and_frame();
     (void)test_normal_and_duplicate();
     (void)test_bad_frame_and_order();

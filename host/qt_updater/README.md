@@ -32,19 +32,14 @@
 
 ## 构建
 
-当前仓库使用的 Qt 6.8.3/MinGW 构建方式：
+在已安装 Qt、CMake、Ninja 和 MinGW 的 Windows 环境中，从仓库目录运行：
 
 ```powershell
-cd E:\IAP\stm32f407_uart_iap_demo\host\qt_updater
+cd host\qt_updater
 .\build_qt.ps1
 ```
 
-脚本直接调用以下绝对路径，不修改系统 PATH：
-
-- `D:\Qt\Tools\CMake_64\bin\cmake.exe`
-- `D:\Qt\Tools\Ninja\ninja.exe`
-- `D:\Qt\Tools\mingw1310_64\bin\gcc.exe` / `g++.exe`
-- `D:\Qt\6.8.3\mingw_64`
+脚本优先读取 `QT_ROOT`、`CMAKE_EXE`、`NINJA_EXE`、`CXX_COMPILER`、`WINDEPLOYQT_EXE` 环境变量；未设置时从 `PATH` 查找工具。`QT_ROOT` 指向 Qt Kit 根目录，例如其中包含 `bin\windeployqt.exe` 的目录。
 
 脚本依次配置、构建、运行 `windeployqt`，最后以 `--smoke-test` 启动程序并检查 CRC 固定向量及 Qt 事件循环。通用 CMakeLists 仍会优先查找 Qt 6，找不到时回退到 Qt 5.12+。
 
@@ -61,9 +56,9 @@ cd E:\IAP\stm32f407_uart_iap_demo\host\qt_updater
 ## Validation scope and limits
 
 - `[源码证据]`：本目录包含协议编码、CRC、ACK 状态机、超时重发和程序化 UI。
-- 主机端：2026-09-05 已使用 Qt SerialPort、MinGW 13.1、CMake 和 Ninja 完成 Release 构建；`--smoke-test` 返回 0。该检查覆盖 QApplication/界面对象创建、事件循环、CRC 固定向量和公共错误码映射。
+- 主机端：[PC模拟] 2026-09-05 已完成 Qt SerialPort Release 构建；`--smoke-test` 返回 0。该检查覆盖 QApplication/界面对象创建、事件循环、CRC 固定向量和公共错误码映射。
 - `windeployqt` 报告未找到可选的 `dxcompiler.dll`/`dxil.dll`，但本 Widgets 程序的启动烟雾测试通过；若以后加入依赖 DirectX Shader Compiler 的界面功能，需要重新部署核对。
-- 未连接 STM32F407ZGT6 开发板；不能据此宣称真实硬件升级成功。
+- [开发板实测] 当前 Qt 上位机已用于 R3 重连后升级及 R4 回滚结果观察；详细范围见 [`../../docs/evidence_and_test.md`](../../docs/evidence_and_test.md)。
 - `QSerialPort::write()` 成功只表示数据进入本机发送缓冲；进度只在设备 ACK 的序号和偏移与预期一致后推进。
 - 固定协议没有 magic/SOF 字段；接收端只能根据已知命令、长度和 CRC 尝试重新同步，抗噪能力受限。
 - ACK/NACK 没有携带“被确认的命令”或事务 ID；极端情况下，同一控制帧超时重发产生的迟到重复 ACK 无法与下一控制帧 ACK 完全区分。正式协议应增加关联字段或在设备端保证每个停等事务只形成一个有效响应。

@@ -1,23 +1,30 @@
 [CmdletBinding()]
 param(
     [ValidateSet('All', 'Bootloader', 'App')]
-    [string]$Target = 'All'
+    [string]$Target = 'All',
+    [string]$Uv4Path = $env:KEIL_UV4_PATH,
+    [string]$FromElfPath = $env:ARMCC_FROMELF_PATH
 )
 
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$uv4Path = 'E:\keil\UV4\UV4.exe'
-$fromElfPath = 'E:\keil\ARM\ARMCC\bin\fromelf.exe'
 $logDirectory = Join-Path $PSScriptRoot 'logs'
 
-if (-not (Test-Path -LiteralPath $uv4Path)) {
-    throw "Keil uVision was not found at: $uv4Path"
+if (-not $Uv4Path) {
+    $command = Get-Command 'UV4.exe' -ErrorAction SilentlyContinue
+    if ($command) { $Uv4Path = $command.Source }
 }
-
-if (-not (Test-Path -LiteralPath $fromElfPath)) {
-    throw "ARMCC5 fromelf was not found at: $fromElfPath"
+if (-not $FromElfPath) {
+    $command = Get-Command 'fromelf.exe' -ErrorAction SilentlyContinue
+    if ($command) { $FromElfPath = $command.Source }
+}
+if (-not $Uv4Path -or -not (Test-Path -LiteralPath $Uv4Path -PathType Leaf)) {
+    throw 'Keil uVision not found. Set KEIL_UV4_PATH or add UV4.exe to PATH.'
+}
+if (-not $FromElfPath -or -not (Test-Path -LiteralPath $FromElfPath -PathType Leaf)) {
+    throw 'ARMCC5 fromelf not found. Set ARMCC_FROMELF_PATH or add fromelf.exe to PATH.'
 }
 
 New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
@@ -66,7 +73,7 @@ function Invoke-KeilBuild {
     }
 
     Write-Host "Building $($Build.Name) at link base $($Build.LinkBase)..."
-    $process = Start-Process -FilePath $uv4Path `
+    $process = Start-Process -FilePath $Uv4Path `
         -ArgumentList @('-b', $Build.Project, '-j0', '-o', $logPath) `
         -WorkingDirectory $mdkDirectory `
         -Wait `
@@ -94,7 +101,7 @@ function Invoke-KeilBuild {
         Remove-Item -LiteralPath $binPath -Force
     }
 
-    & $fromElfPath --bin --output $binPath $axfPath
+    & $FromElfPath --bin --output $binPath $axfPath
     if ($LASTEXITCODE -ne 0) {
         throw "fromelf failed for $($Build.Name) with exit code $LASTEXITCODE"
     }

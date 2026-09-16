@@ -2,12 +2,16 @@ $ErrorActionPreference = 'Stop'
 
 $testRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $projectRoot = Split-Path -Parent (Split-Path -Parent $testRoot)
-$gcc = 'D:\Qt\Tools\mingw1310_64\bin\gcc.exe'
+$gcc = $env:IAP_GCC
+if (-not $gcc) {
+    $gccCommand = Get-Command 'gcc.exe' -ErrorAction SilentlyContinue
+    if ($gccCommand) { $gcc = $gccCommand.Source }
+}
 $buildRoot = Join-Path $testRoot 'build'
 $executable = Join-Path $buildRoot 'iap_pc_sim_tests.exe'
 
-if (-not (Test-Path -LiteralPath $gcc -PathType Leaf)) {
-    throw "MinGW compiler is missing: $gcc"
+if (-not $gcc -or -not (Test-Path -LiteralPath $gcc -PathType Leaf)) {
+    throw 'GCC not found. Set IAP_GCC or add gcc.exe to PATH.'
 }
 New-Item -ItemType Directory -Path $buildRoot -Force | Out-Null
 
